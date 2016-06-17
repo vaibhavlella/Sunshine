@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
 
-
+    private ArrayAdapter<String> mForecastAdapter;
     public ForecastFragment() {
     }
     @Override
@@ -58,7 +58,7 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
             FetchWeatherTask weatherTask = new FetchWeatherTask();
-            weatherTask.execute("94043");
+            weatherTask.execute("1273293");
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -77,7 +77,8 @@ public class ForecastFragment extends Fragment {
                 "Sun 6/29 - Sunny - 20/7"
         };
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
-        ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<String>(
+
+        mForecastAdapter = new ArrayAdapter<String>(
                         getActivity(), // The current context (this activity)
                         R.layout.list_item_forecast, // The name of the layout ID.
                         R.id.list_item_forecast_textview, // The ID of the textview to populate.
@@ -184,9 +185,9 @@ public class ForecastFragment extends Fragment {
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
             }
 
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
-            }
+//            for (String s : resultStrs) {
+//                Log.v(LOG_TAG, "Forecast entry: " + s);
+//            }
             return resultStrs;
 
         }
@@ -215,7 +216,7 @@ public class ForecastFragment extends Fragment {
 
                 final String FORECAST_BASE_URL =
                         "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                final String QUERY_PARAM = "q";
+                final String QUERY_PARAM = "id";
                 final String FORMAT_PARAM = "mode";
                 final String UNITS_PARAM = "units";
                 final String DAYS_PARAM = "cnt";
@@ -231,7 +232,7 @@ public class ForecastFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+//                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
 
 
                 // Create the request to OpenWeatherMap, and open the connection
@@ -260,7 +261,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
                 forecastJsonStr = buffer.toString();
-                Log.v(LOG_TAG,"Forecast JSON string: " + forecastJsonStr);
+//                Log.v(LOG_TAG,"Forecast JSON string: " + forecastJsonStr);
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -285,6 +286,16 @@ public class ForecastFragment extends Fragment {
                 e.printStackTrace();
             }
             return null;
+        }
+        @Override
+        protected void onPostExecute(String[] result) {
+            if (result != null) {
+                mForecastAdapter.clear();
+                for(String dayForecastStr : result) {
+                    mForecastAdapter.add(dayForecastStr);
+                }
+                // New data is back from the server.  Hooray!
+            }
         }
     }
 }
